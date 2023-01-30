@@ -1,0 +1,14 @@
+{
+    "existing": "No",
+    "sketch_new": "TEST_SKETCH",
+    "sketch_desc": "evtx_test",
+    "timelines_drop": "Yes",
+    "timeline": "test_evtx",
+    "parsing_mode": "Local",
+    "hunt_id": "",
+    "dir_path": "/tmp/e0ce02d7-becb-403c-a8f5-8ac3686fc2dd",
+    "evtx": "on",
+    "tagging": "Windows",
+    "user": "test",
+    "dir": "/tmp/e0ce02d7-becb-403c-a8f5-8ac3686fc2dd"
+}

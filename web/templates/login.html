@@ -1,0 +1,48 @@
+{% extends "_base2.html" %}
+
+{% block content %}
+
+<div class="container"></div>
+<div class="container-xxl">
+
+    <div class="row"></div>
+    <div class="row">
+        
+
+        <div class=" container-fluid d-flex align-items-center" style="padding-top: 100px;">
+
+            <div class="form-group flex-fill justify-content-center" >
+                
+               
+
+                <br><b>Autosketch login</b><br>
+                
+                <form action="/login" method="post">
+                    
+
+                <div>
+                    <label for="username">Username</label>
+                    <input type="text" class="form-control" id="username" name="username"><br>
+                </div>
+
+                <div >
+                    <label for="password">Password</label>
+                    <input type="password" class="form-control" id="password" name="password"><br>
+                </div>
+
+                {% if error %}
+                <a style="color: red;">{{ error }}</a><br>
+                {% endif %}
+                <button type="submit" class="btn btn-primary">Login</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</script>
+
+
+{% endblock %}
+   

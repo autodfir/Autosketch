@@ -1,0 +1,48 @@
+
+
+
+<header class="bd-header bg-dark py-3 d-flex align-items-stretch border-bottom border-dark" data-bs-color-scheme>
+    <div class="container-fluid d-flex align-items-center">
+        <h1 class="d-flex align-items-center fs-4 text-white mb-0">
+            Autosketch
+        </h1>
+        <!-- ***** ***** ***** THE BUTTON GOES BELOW HERE ***** ***** ***** -->
+        <div class="btn-group ms-auto" role="group">
+            {% if current_user.is_authenticated %}
+                <a id="ts-button" class="btn btn-outline-light" ">Open Timesketch</a>
+                <a id="upload-button" class="btn btn-outline-light" href="{{ url_for('index') }}"">Upload evidence</a>
+                <a id="redis-button" class="btn btn-outline-light" href="/rq">Redis queue</a>
+                <a id="tasks-button" class="btn btn-outline-light" href="{{ url_for('tasks')}}">Tasks</a>
+                
+                <a class="btn btn-outline-light" href="{{ url_for('logout') }}">Logout</a>
+            {% else %}
+                <a class="btn btn-outline-light" href="{{ url_for('login') }}">Login</a>
+            {% endif %}
+            <a id="darkmode-button" class="btn btn-outline-light">
+                <i class="fa fa-moon-o fa-fw d-none d-light-inline" title="Switch to dark mode"></i>
+                <i class="fa fa-sun-o fa-fw d-none d-dark-inline" title="Switch to light mode"></i>Switch Mode
+            </a>
+
+            <div class="btn-group" role="group">
+                <button id="btnGroupDrop1" type="button" class="btn btn-outline-secondary dropdown-toggle"
+                        data-bs-toggle="dropdown" aria-expanded="false"></button>
+                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                    <li><a id="darkmode-button-l-1" class="dropdown-item">Set Light Mode</a></li>
+                    <li><a id="darkmode-button-d-1" class="dropdown-item">Set Dark Mode</a></li>
+                </ul>
+            </div>
+        </div>
+        <!-- ***** ***** ***** THE BUTTON GOES ABOVE HERE ***** ***** ***** -->
+    </div>
+</header>
+
+<!-- on ts-button clicked redirect to ts webpage-->
+<script>
+    
+    document.getElementById("ts-button").onclick = function () {
+        window.open("{{ ts_url }}", "_blank").focus();
+    };
+
+</script>
+
+

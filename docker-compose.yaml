@@ -1,0 +1,33 @@
+version: '3.3'
+services:
+  redis:
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server 
+
+
+  autosketch-worker-plaso:
+    restart: always
+    image: autodfir/autosketch:worker-latest
+    depends_on:
+      - redis
+
+    volumes:
+      - ./etc:/etc/autosketch
+      - /tmp/shared:/tmp #shared volume between webapp and worker
+      - /:/virt:ro # bad practice, but allows to upload to AS files directly from host
+
+  autosketch-webapp:
+    restart: always
+    ports:
+      - '5001:5001'
+    image: autodfir/autosketch:web-latest
+    depends_on:
+      - redis 
+
+    volumes:
+      - ./etc:/etc/autosketch
+      - /tmp/shared:/tmp #shared volume between webapp and worker
+      - /:/virt:ro # bad practice, but allows to upload to AS files directly from host

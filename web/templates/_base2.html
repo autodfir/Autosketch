@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en" data-bs-color-scheme="dark">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="/static/bootstrap-blackbox.min.css" rel="stylesheet">
+
+    <title>Autosketch
+
+    </title>
+
+    <!-- Cheatsheet -->
+
+    <link href="/static/cheatsheet-nights.css" rel="stylesheet">
+    <style>
+      .d-light-inline { display: inline !important; }
+      .d-dark-inline { display: none !important; }
+      [data-bs-color-scheme="dark"] .d-light-inline { display: none !important; }
+      [data-bs-color-scheme="dark"] .d-dark-inline { display: inline !important; }
+
+
+    </style>
+</head>
+<body class="">
+
+    {% include "header.html" %}
+
+
+    {% block content %}{% endblock %}
+
+    </script>
+
+    <!-- Option 1: Bootstrap Bundle with Popper -->
+    <script src="/static/bootstrap.bundle.min.js"></script>
+
+    <!-- DarkMode.js -->
+    <script src="/static/darkmode.js"></script>
+    <script>
+        document.querySelector("#darkmode-button").onclick = function(e){
+            darkmode.toggleDarkMode();
+        }
+        document.querySelector("#darkmode-button-l-1").onclick = function(e){
+            darkmode.setDarkMode(false);  // save=true is default
+        }
+        document.querySelector("#darkmode-button-d-1").onclick = function(e){
+            darkmode.setDarkMode(true);  // save=true is default
+        }
+
+
+    </script>
+
+    <!-- Cheatsheet -->
+    <script src="/static/cheatsheet.js"></script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+__secret__/
+sqlite_db
+.idea/
+config.yaml
+velo_api.config.yaml

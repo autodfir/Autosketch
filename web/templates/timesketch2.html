@@ -1,0 +1,328 @@
+{% extends "_base2.html" %}
+
+{% block content %}
+
+<div class="container"></div>
+<div class="container-xxl">
+
+    <div class="row"></div>
+    <div class="row">
+        
+
+        <div class=" container-fluid d-flex align-items-center" style="padding-top: 100px;">
+
+            <div class="form-group flex-fill justify-content-center" >
+                
+                {% if output %}
+                <div class="toast" role="alert" style="position: absolute; bottom: 5%; left:70%;" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-header">
+                    
+                    <strong class="me-auto">Output</strong>
+                    
+                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    <div class="toast-body">
+                    {{ output }}
+                    </div>
+                </div>
+                {% endif %}
+                {% if error %}
+                <div class="toast" role="alert" style="position: absolute; bottom: 5%; left:70%;" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-header">
+                    
+                    <strong class="me-auto">Error</strong>
+                    
+                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    <div class="toast-body">
+                    <a style="color: red">{{ error }} </a>
+                    </div>
+                </div>
+                {% endif %}
+
+                <br><b>Upload artifacts to Timesketch
+                {% if current_user %}
+                    - {{ current_user.name }}
+                {% endif %}</b><br>
+                
+                
+                    <form action="{{ url_for('upload_file')}}" method="POST" enctype="multipart/form-data">
+                
+                    <br><label for="existing">Choose upload mode</label>
+                    <select class="form-select" id="existing" name="existing">
+                        <option value="Yes" selected="selected">Upload to existing sketch</option>
+                        <option value="No">Upload to new sketch</option>
+                    </select><br>
+
+
+                <div id="sketch_new_div" hidden="true">
+                    <label for="sketch_new">Sketch name</label>
+                    <input type="text" class="form-control" id="sketch_new" placeholder="New sketch name" name="sketch_new"><br>
+                </div>
+
+
+                <div id="sketch_id_drop_div">
+                    <label>Sketch name:</label>
+
+                    <!-- jinja template list sketches -->
+                    {% if sketches %}
+                        {% for sketch in sketches %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="sketch_id_from_ts" id="sketch_id_from_ts"
+                                value="{{ sketch['sketch_id'] }}" onclick="get_timelines({{ sketch['sketch_id'] }})">
+                            <label class="form-check-label" for="sketch_id_from_ts">
+                                {{ sketch['sketch_name'] }}
+                            </label>
+                        </div>
+                        {% endfor %}<br>
+                    
+                    {% else %}
+                        <p style="color: red">No sketches found change to Upload to new sketch.</p>
+                    {% endif %}
+
+                </div>
+
+                <div id="sketch_desc_div" hidden="true">
+                    <label for="sketch_desc">Sketch Description</label>
+                    <input type="text" class="form-control" id="sketch_desc" placeholder="Sketch description"
+                        name="sketch_desc"><br>
+                </div>
+                
+                <div>
+                    <br>
+                    <label for="existing">Choose timeline</label>
+                    <select class="form-select" id="timelines_drop" name="timelines_drop">
+                        <option value="Yes" selected="selected">Upload to new timeline</option>
+                        
+                    </select>
+                    <br>
+                </div>
+
+                <div id="timeline_name_div">
+                    <label for="timeline">Timeline name</label>
+                    <input type="text" class="form-control" id="timeline" placeholder="Timeline name" name="timeline" required><br>
+                </div>
+
+                <!--dropdown list with path option and file option-->
+                <div>
+                    <label for="parsing_mode">Choose parsing mode</label>
+                    <select class="form-select" id="parsing_mode" name="parsing_mode" required>
+                        <option disabled selected value> -- Select parsing mode --</option>
+                        <option value="Upload">Upload archived artifacts</option>
+                        <option value="Local">Parse artifacts from local directory</option>
+                        {% if velo_used == true %}
+                        <option value="Velo">Upload archived artifacts from Velociraptor hunt</option>
+                        {% endif %}
+                    </select><br>
+                </div>
+
+                <!--form-control of type text for velo hunt-->
+                <div id="velo_div" hidden="true">
+                    <label for="hunt_id">Velociraptor Hunt Id</label>
+                    <input type="text" class="form-control" id="hunt_id" placeholder="Velociraptor Hunt Id" name="hunt_id"><br>
+                </div>
+
+                <!-- form-control of type text for path to artifacts -->
+                <div id="dir_div" hidden="true">
+                    <label for="dir_path">Path to local directory</label>
+                    <input type="text" class="form-control" id="dir_path" placeholder="Path to directory" name="dir_path"><br>
+                </div>
+
+                <div id="zipped_div" hidden="false">
+                    <div class="custom-file">
+                        <label class="custom-file-label" for="file">Choose zipped artifacts to upload</label><br>
+                        <input type="file" name="file" id="file"><br>
+                    </div>
+                    <br>
+                </div>
+
+
+                <!-- checkbox in div NOT IMPLEMENTED YET
+                <div id="pass_check_div" hidden="true">
+                    <input class="form-check-input" type="checkbox" value="" id="pass_check">
+                    <label class="form-check-label" for="pass_check">
+                        Password protected archive
+                    </label>
+                    <br>
+                </div>
+
+                <div id="pass_div" hidden="true">
+                    <label for="pass">Zip password</label>
+                    <input type="text" class="form-control" id="pass" placeholder="Zip password" name="pass"><br>
+                </div>-->
+
+                <!--checkboxes in div-->
+                <div>
+                    <label>Choose artifacts to parse</label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="evtx" name="evtx" >
+                        <label class="form-check-label" for="evtx">
+                            Parse evtx (Zimmerman)
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="plaso" name="plaso" >
+                        <label class="form-check-label" for="plaso">
+                            Parse artifacts with plaso (without evtx)
+                        </label>
+                    </div>
+                    <br>
+                </div>
+
+                <div class="form-row" id="div_tag" hidden="False">
+                    <div class="form-group col-md-6">
+                        <label for="tagging">Select artifacts' operating system (to choose tagging)</label>
+                        <select class="form-select" id="tagging" name="tagging">
+                            <option value="Windows">Windows</option>
+                            <option value="Linux">Linux</option>
+                            <option value="Other">Other - no tagging</option>
+                        </select><br>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Upload</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--if Local chosen hide zipped_div and show dir_div  -->
+<script>
+        document.getElementById("parsing_mode").onchange = function() {
+        if (this.value == "Local") {
+            document.getElementById("zipped_div").hidden = true;
+            document.getElementById("dir_div").hidden = false;
+            document.getElementById("velo_div").hidden = true;
+        }
+        else if(this.value == "Velo"){
+            document.getElementById("zipped_div").hidden = true;
+            document.getElementById("dir_div").hidden = true;
+            document.getElementById("velo_div").hidden = false;
+
+        }
+        else if(this.value == "Upload"){
+            document.getElementById("zipped_div").hidden = false;
+            document.getElementById("dir_div").hidden = true;
+            document.getElementById("velo_div").hidden = true;
+        }
+        else {
+            document.getElementById("zipped_div").hidden = true;
+            document.getElementById("dir_div").hidden = true;
+            document.getElementById("velo_div").hidden = true;
+        }
+        }
+
+
+</script>
+
+
+<!-- when pass_check checked show pass_div-->
+<script>
+    document.getElementById("pass_check").onchange = function() {
+        if (this.checked) {
+        document.getElementById("pass_div").hidden = false;
+        }
+        else {
+        document.getElementById("pass_div").hidden = true;
+        }
+    }
+
+
+</script>
+
+
+<!-- if plaso checked show div_tag-->
+<script>
+    document.getElementById("plaso").onchange = function() {
+        if (this.checked) {
+        document.getElementById("div_tag").hidden = false;
+        }
+        else {
+        document.getElementById("div_tag").hidden = true;
+        }
+    }
+
+
+</script>
+
+<!-- if timelines_drop have selected first option unhide timeline_name_div -->
+<script>
+    document.getElementById("timelines_drop").onchange = function() {
+        //if first <option> in this element is selected show timeline_name_div
+        //get first option from this
+        var first_option = document.getElementById("timelines_drop").options[0];
+        //if first option is selected
+        if (this.value == first_option.value) {
+        document.getElementById("timeline_name_div").hidden = false;
+        //clear value of the object id timeline
+        document.getElementById("timeline").value = "";
+
+        }
+        else {
+        document.getElementById("timeline_name_div").hidden = true;
+        // set value of the object id timeline to the value of the selected option
+        document.getElementById("timeline").value = this.value;
+        }
+        
+    }
+</script>
+
+<!--if upload to existing sketch chosen disable sketch_new and sketch_desc-->
+<script>
+    document.getElementById("existing").onchange = function() {
+        if (this.value == "Yes") {
+        document.getElementById("sketch_new_div").hidden = true;
+        document.getElementById("sketch_desc_div").hidden = true;
+        document.getElementById("sketch_id_drop_div").hidden = false;
+        }
+        else {
+        document.getElementById("sketch_new_div").hidden = false;
+        document.getElementById("sketch_desc_div").hidden = false;
+        document.getElementById("sketch_id_drop_div").hidden = true;
+        }
+    }
+
+
+</script>
+
+<script>
+    // When user selects option in radio input with id "sketch_id_from_ts" send get request to /get_timelines/<sketch_id> where <sketch_id> is 8
+
+   
+
+    function get_timelines(sketch_id) {
+        //prepare request
+        console.log("GET-timelines")
+        var request = new XMLHttpRequest();
+        //var sketch_id = this.value;
+        var url = "/get_timelines/" + sketch_id;
+        request.open("GET", url, true);
+        request.onload = function() {
+            //get response
+            var data = JSON.parse(this.response);
+            //clear dropdown
+            var dropdown = document.getElementById("timelines_drop");
+            
+            //delete all options beside first one
+            while (dropdown.options.length > 1) {
+                dropdown.remove(1);
+            }
+
+            var option;
+            for (var i = 0; i < data.length; i++) {
+                option = document.createElement('option');
+                option.text = data[i].timeline_name;
+                option.value = data[i].timeline_name;
+                dropdown.add(option);
+            }
+        }
+        request.send();
+
+    }
+</script>
+
+
+{% endblock %}
+   

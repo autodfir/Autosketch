@@ -1,0 +1,27 @@
+{% extends "_base2.html" %}
+
+{% block content %}
+
+<div class="bd-cheatsheet container-fluid d-flex align-items-center">
+    <br>
+            <div id="logs" style="margin-left: 100px; margin-bottom: 100px;">
+
+                <br><label>Tasks:</label><br>
+                <code id="log" rows="20" cols="100" readonly>
+                <!-- jinja template list sketches -->
+                {% if tasks %}    
+                    {% for task in tasks %}
+                    <!-- href to /tasks/{{ task }} -->
+                    {{ task.date }} - <a href="{{ url_for('tasks_log', task_id=task.id) }}">{{ task.id }}</a> <br>
+                        
+                    {% endfor %}<br>
+                {% endif %}
+                </code>
+            </div>
+    </div>
+    
+
+    
+
+
+{% endblock %}

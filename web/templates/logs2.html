@@ -1,0 +1,27 @@
+{% extends "_base2.html" %}
+
+{% block content %}
+
+<div class="bd-cheatsheet container-fluid d-flex align-items-center">
+    <br>
+            <div id="logs" style="margin-left: 100px; margin-bottom: 100px;">
+                
+                <br><label>Logs:</label><br>
+                <code id="log" rows="20" cols="100" readonly>
+                <!-- jinja template list sketches -->
+                {% for log in logs %}
+                {{ log }} <br>
+                {% endfor %}<br>
+                </code>
+            </div>
+    </div>
+    
+
+    <script>
+        setTimeout(function(){
+            window.location.reload(1);
+        }, 15000);
+    </script>
+
+
+{% endblock %}

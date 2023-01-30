@@ -1,0 +1,37 @@
+version: '3.3'
+services:
+  redis:
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server 
+
+
+  autosketch-worker-plaso:
+    restart: always
+    build: 
+      context: ../
+      dockerfile: worker_plaso/Dockerfile
+    depends_on:
+      - redis
+
+    volumes:
+      - ../etc:/etc/autosketch
+      - /tmp/shared:/tmp #this is dirty solution, but it works 
+      - /:/virt:ro # bad practice, but allows to upload to AS files directly from host
+
+  autosketch-webapp:
+    restart: always
+    ports:
+      - '5001:5001'
+    build: 
+      context: ../
+      dockerfile: web/Dockerfile
+    depends_on:
+      - redis 
+
+    volumes:
+      - ../etc:/etc/autosketch
+      - /tmp/shared:/tmp #this is dirty solution, but it works
+      - /:/virt:ro # bad practice, but allows to upload to AS files directly from host

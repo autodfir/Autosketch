@@ -1,0 +1,14 @@
+{
+    "existing": "No",
+    "sketch_new": "TEST_SKETCH",
+    "sketch_desc": "test.py generated",
+    "timelines_drop": "Yes",
+    "timeline": "test",
+    "parsing_mode": "Local",
+    "hunt_id": "",
+    "dir_path": "/tmp/dba53576-cf32-461f-8de9-abbb221cafae/auth.log",
+    "plaso": "on",
+    "tagging": "Linux",
+    "user": "test",
+    "dir": "/tmp/dba53576-cf32-461f-8de9-abbb221cafae"
+}
