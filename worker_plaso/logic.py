@@ -26,8 +26,9 @@ with open(CONFIG_FILE, "r") as stream:
 
 UPLOAD_FOLDER = conf["UPLOAD_FOLDER"]
 LOG_FILE = UPLOAD_FOLDER + "/log.txt"
-ZIMMERMAN_PATH = conf["ZIMMERMAN_PATH"]
-DOTNET_PATH = conf["DOTNET_PATH"]
+ZIMMERMAN_PATH = "/app"
+DOTNET_PATH = '/root/.dotnet/dotnet'
+
 TS_RC = conf["TS_RC"]
 REDIS_IP = conf["REDIS_IP"]
 REDIS_PORT = conf["REDIS_PORT"]
