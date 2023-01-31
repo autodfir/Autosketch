@@ -11,7 +11,7 @@ Framework to automate forensic workload and upload it to Timesketch
 ### Automated
 ```
 cd /opt
-curl https://github.com/autodfir/Autosketch/blob/main/deploy/deploy_as.sh > deploy_as.sh
+curl https://raw.githubusercontent.com/autodfir/Autosketch/main/deploy/deploy_as.sh > deploy_as.sh
 chmod +x deploy_as.sh
 sudo ./deploy_as.sh
 ```
