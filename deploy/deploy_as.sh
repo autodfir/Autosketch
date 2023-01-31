@@ -17,7 +17,7 @@ mkdir Autosketch
 mkdir Autosketch/etc
 
 #copy necessary files
-curl https://raw.githubusercontent.com/autodfir/Autosketch/blob/main/etc/config.yaml > Autosketch/etc/config.yaml
+curl https://raw.githubusercontent.com/autodfir/Autosketch/main/etc/config.yaml > Autosketch/etc/config.yaml
 curl https://raw.githubusercontent.com/autodfir/Autosketch/main/docker-compose.yaml > Autosketch/docker-compose.yaml
 
 #read Timesketch IP address and port
