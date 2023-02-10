@@ -22,5 +22,4 @@ RUN pip3 install -r requirements.txt
 
 COPY worker_plaso/ ./
 
-
-ENTRYPOINT ["/usr/bin/python3", "worker.py"]
+ENTRYPOINT /usr/bin/python3 worker.py $worker_num_env

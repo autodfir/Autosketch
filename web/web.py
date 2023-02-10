@@ -28,9 +28,6 @@ from typing import Text
 CONFIG_FILE = "/etc/autosketch/config.yaml"
 
 
-
-
-
 app = Flask(__name__, static_folder="static")
 app.config['SECRET_KEY'] = os.urandom(24)
 app.config['SESSION_COOKIE_NAME'] = 'autosketch_session'
@@ -44,7 +41,7 @@ login_manager.login_view = "login"
 
 init_app(app)
 
-#try to load config file
+# try to load config file
 try:
     with open(CONFIG_FILE, "r") as stream:
         conf = yaml.safe_load(stream)
@@ -86,6 +83,7 @@ def get_sketches(username):
 def load_user(user_id):
     return User.get(user_id)
 
+
 @app.route('/')
 @login_required
 def index():
@@ -101,23 +99,23 @@ def index():
                            ts_url=ts_url)
 
 
-
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
     return redirect(url_for('login'))
 
+
 @app.route('/login', methods=["GET","POST"])
 def login():
-    #TODO redirect if session already established
-    #if GET 
+    # TODO redirect if session already established
+    # if GET
     if request.method == 'GET':
         return render_template("login.html")
 
     if request.method == 'POST':
-        #get params
-        #check credentials
+        # get params
+        # check credentials
         user = request.form.get('username')
         password = request.form.get('password')
 
@@ -143,6 +141,7 @@ def login():
         else:
             return render_template("login.html", error = result)
 
+
 @app.route('/ts')
 @login_required
 def ts_redirect():
@@ -155,7 +154,7 @@ def ts_redirect():
 @app.route('/tasks')
 @login_required
 def tasks():
-    #get current user tasks
+    # get current user tasks
     tasks = Task.get_all_by_user(current_user.name)
     return render_template("tasks.html", title='Autosketch', tasks=tasks)
 
@@ -167,11 +166,11 @@ def tasks_log():
     task_uuid = request.args.get("task_id")
 
     log_file = UPLOAD_FOLDER + "/" + task_uuid + ".log"
-    #if file doesn't exist reutn list with that info
+    # if file doesn't exist return list with that info
     if os.path.exists(log_file):
         with open(log_file) as l:
             logs_lines = l.readlines()
-        #to make it more readable remove every Worker_ line and reverse the list
+        # to make it more readable remove every Worker_ line and reverse the list
         logs_lines = [x for x in logs_lines if "Worker_" not in x][::-1]
 
     else:
@@ -180,19 +179,17 @@ def tasks_log():
     return render_template("logs2.html", title='Autosketch', logs=logs_lines)
 
 
-
-
 # Preparing json config and setting directory structure needed for task to run correctly
 @app.route('/uploader', methods=['POST'])
 @login_required
 def upload_file():
 
     def run_task2(ts_conf, file=None):
-        q = Queue(connection=redis.Redis(host=REDIS_IP,port=REDIS_PORT))
+        q = Queue(name="parsers", connection=redis.Redis(host=REDIS_IP, port=REDIS_PORT))
         
         task_uuid = str(uuid.uuid4())
         
-        #create direcotry beeased on task uuid
+        # create directory based on task uuid
         task_dir = UPLOAD_FOLDER + "/" + task_uuid
         os.mkdir(task_dir)
 
@@ -201,25 +198,22 @@ def upload_file():
         with open(os.path.join(task_dir, "ts_flow.json"), "w") as f:
             json.dump(ts_conf, f, indent=4)
 
-        #case for file upload, file need to be saved in task dir
+        # case for file upload, file need to be saved in task dir
         if file is not None:
             filename = file.filename
             file.save(os.path.join(task_dir, filename))
             conf_file["file"] = filename
 
-
         task = q.enqueue(start, ts_conf, task_uuid, job_timeout=36000)
 
-        Task.create(task_uuid, current_user.name,task.enqueued_at)
+        Task.create(task_uuid, current_user.name, task.enqueued_at)
 
         output = f"Task {task_uuid} added to queue at {task.enqueued_at}"
         logging.info("TAKS_OUT:" + output)
         return output
 
-
     def allowed_file(filename):
         return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
 
     error=None
     output=None
@@ -233,8 +227,6 @@ def upload_file():
     if parsing_mode == 'Velo':
         conf_file['file'] = "ts_" + conf_file['hunt_id'] + ".zip"
         output = run_task2(conf_file)
-
-        
 
     # Check if local parsing mode is selected and process accordingly       
     elif parsing_mode == 'Local':
@@ -258,9 +250,7 @@ def upload_file():
             
         else:
             error = 'Allowed file types are zip and 7z'
-            
-            
-    
+
     sketches = get_sketches(current_user.name)
     ts_url = f"http://{TS_IP}:{TS_PORT}"
     return render_template("timesketch2.html",
@@ -272,9 +262,7 @@ def upload_file():
                            output=output)
 
 
-
-
-#api endopint for getting timelines for a sketch
+# api endpoint for getting timelines for a sketch
 @app.route('/get_timelines/<sketch_id>')
 @login_required
 def get_timelines(sketch_id):
