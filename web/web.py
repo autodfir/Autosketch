@@ -18,9 +18,9 @@ import subprocess
 import yaml
 import uuid
 
-from logic import start
+from parser_logic import start_parser
 from models import User, Task
-from db import init_db_command,close_db,init_app
+from db import init_db_command, close_db, init_app
 import auth
 
 from typing import Text
@@ -119,11 +119,11 @@ def login():
         user = request.form.get('username')
         password = request.form.get('password')
 
-        result = auth.check_credentials(TS_IP,TS_PORT,user,password)
+        result = auth.check_credentials(TS_IP, TS_PORT, user, password)
 
         if result is True:
             
-            auth.create_new_token(user,password,TS_IP,TS_PORT,TS_RC)
+            auth.create_new_token(user, password, TS_IP, TS_PORT, TS_RC)
             
             id = user
             user_obj = User(id=id, name=user)
@@ -204,7 +204,7 @@ def upload_file():
             file.save(os.path.join(task_dir, filename))
             conf_file["file"] = filename
 
-        task = q.enqueue(start, ts_conf, task_uuid, job_timeout=36000)
+        task = q.enqueue(start_parser, ts_conf, task_uuid, job_timeout=36000)
 
         Task.create(task_uuid, current_user.name, task.enqueued_at)
 
