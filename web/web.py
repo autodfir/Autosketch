@@ -209,8 +209,10 @@ def upload_file():
 
 
         task = q.enqueue(start, ts_conf, task_uuid, job_timeout=36000)
-
-        Task.create(task_uuid, current_user.name,task.enqueued_at)
+        sketch_name = ts_conf["sketch_new"] if ts_conf["sketch_new"] != "" else ts_conf["sketch_id_from_ts"]
+        timeline_name = ts_conf["timeline"]
+        task_type = "EVTX" if 'evtx' in ts_conf else "PLASO"
+        Task.create(task_uuid, current_user.name, task.enqueued_at, sketch_name, timeline_name, task_type)
 
         output = f"Task {task_uuid} added to queue at {task.enqueued_at}"
         logging.info("TAKS_OUT:" + output)
