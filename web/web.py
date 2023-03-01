@@ -57,6 +57,7 @@ try:
         REDIS_PORT = conf["REDIS_PORT"]
         TS_RC = conf["TS_RC"]
         VELO_USED = conf["VELO_USED"]
+        S3_STS_USED = conf["S3_STS_USED"]
 
         app.config.from_object(rq_dashboard.default_settings)
         app.register_blueprint(rq_dashboard.blueprint, url_prefix="/rq")
@@ -96,6 +97,7 @@ def index():
                            title='Autosketch',
                            sketches=sketches,
                            velo_used=VELO_USED,
+                           sts_used=S3_STS_USED,
                            ts_url=ts_url)
 
 
@@ -232,6 +234,7 @@ def upload_file():
         conf_file['file'] = "ts_" + conf_file['hunt_id'] + ".zip"
         output = run_task2(conf_file)
 
+
     # Check if local parsing mode is selected and process accordingly       
     elif parsing_mode == 'Local':
         if os.path.exists(conf_file['dir_path']):
@@ -254,6 +257,9 @@ def upload_file():
             
         else:
             error = 'Allowed file types are zip and 7z'
+   
+    elif parsing_mode == "S3":
+        run_task2(conf_file)         
 
     sketches = get_sketches(current_user.name)
     ts_url = f"http://{TS_IP}:{TS_PORT}"
@@ -262,6 +268,7 @@ def upload_file():
                            sketches=sketches,
                            ts_url=ts_url,
                            velo_used=VELO_USED,
+                           sts_used=S3_STS_USED,
                            error=error,
                            output=output)
 
