@@ -13,7 +13,8 @@ services:
     image: autodfir/autosketch:worker-latest
     depends_on:
       - redis
-
+    environment:
+      - worker_num_env=2
     volumes:
       - ./etc:/etc/autosketch
       - /tmp/shared:/tmp #shared volume between webapp and worker

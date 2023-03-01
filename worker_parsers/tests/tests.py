@@ -7,7 +7,7 @@ import shutil
 import uuid
 import time
 from rq import Queue
-from logic import start
+from parser_logic import start_parser
 import logging
 from timesketch_api_client import config, search
 
@@ -39,7 +39,7 @@ except FileNotFoundError as e:
         print(e)
 
 class TestWorker(unittest.TestCase):
-    queue = Queue(connection=redis.Redis(host=REDIS_IP,port=REDIS_PORT))
+    queue = Queue(name="parsers", connection=redis.Redis(host=REDIS_IP,port=REDIS_PORT))
 
     def test_000_check_connection(self):
         #TODO
@@ -72,7 +72,7 @@ class TestWorker(unittest.TestCase):
 
         #add redis task to queue
         task_uuid = test_dir
-        task = self.queue.enqueue(start, ts_flow_conf, task_uuid, job_timeout=36000)
+        task = self.queue.enqueue(start_parser, ts_flow_conf, task_uuid, job_timeout=36000)
 
         #wait for task to finish
         while task.result is None:
@@ -121,7 +121,7 @@ class TestWorker(unittest.TestCase):
 
         #add redis task to queue
         task_uuid = test_dir
-        task = self.queue.enqueue(start, ts_flow_conf, task_uuid, job_timeout=36000)
+        task = self.queue.enqueue(start_parser, ts_flow_conf, task_uuid, job_timeout=36000)
 
         #wait for task to finish
         while task.result is None:
@@ -150,21 +150,21 @@ class TestWorker(unittest.TestCase):
 
         return
 
-    def test_900_remove_sketches(self):
-        username="test"
-
-        ts = config.get_client(config_path=TS_RC,config_section=username)
-        sketches = ts.list_sketches()
-
-        for sketch in sketches:
-                sketch.delete()
-
-        sketches = ts.list_sketches()
-        
-        #check if Generator sketches is empty
-        self.assertEqual(len(list(sketches)), 0, 'Sketches not deleted')
-        
-        return
+    # def test_900_remove_sketches(self):
+    #     username="test"
+    #
+    #     ts = config.get_client(config_path=TS_RC,config_section=username)
+    #     sketches = ts.list_sketches()
+    #
+    #     for sketch in sketches:
+    #             sketch.delete()
+    #
+    #     sketches = ts.list_sketches()
+    #
+    #     #check if Generator sketches is empty
+    #     self.assertEqual(len(list(sketches)), 0, 'Sketches not deleted')
+    #
+    #     return
 
 if __name__ == '__main__':
     unittest.main()

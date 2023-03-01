@@ -15,7 +15,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - dockerfile: ./worker_plaso/Dockerfile
+          - dockerfile: ./worker_parsers/Dockerfile
             tag: autodfir/autosketch:worker
           - dockerfile: ./web/Dockerfile
             tag: autodfir/autosketch:web

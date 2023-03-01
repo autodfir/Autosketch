@@ -17,10 +17,9 @@ RUN wget https://dot.net/v1/dotnet-install.sh && \
 RUN wget https://f001.backblazeb2.com/file/EricZimmermanTools/net6/EvtxECmd.zip \
     && 7z x EvtxECmd.zip -o.
 
-COPY worker_plaso/requirements.txt requirements.txt
+COPY worker_parsers/requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 
-COPY worker_plaso/ ./
+COPY worker_parsers/ ./
 
-
-ENTRYPOINT ["/usr/bin/python3", "worker.py"]
+ENTRYPOINT /usr/bin/python3 worker.py $worker_num_env
