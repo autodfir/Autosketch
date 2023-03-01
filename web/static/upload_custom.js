@@ -20,20 +20,6 @@ document.getElementById("parsing_mode").onchange = function() {
     }
 }
 
-// when pass_check checked show pass_div-->
-
-document.getElementById("pass_check").onchange = function() {
-    if (this.checked) {
-        document.getElementById("pass_div").hidden = false;
-    }
-    else {
-        document.getElementById("pass_div").hidden = true;
-    }
-}
-
-
-
-
 
 // if plaso checked show div_tag-->
 document.getElementById("plaso").onchange = function() {

@@ -8,23 +8,7 @@ import time
 from rq import Connection, Worker, Queue
 
 CONFIG_FILE = "/etc/autosketch/config.yaml"
-# copy timesketchrc and timesketch.token from secrets to home directory
 
-
-def copy_secrets():
-    try:
-        cmd = "cp /run/secrets/secret_rc /root/.timesketchrc"
-        p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        output = p.communicate()[0]
-        cmd = "cp /run/secrets/secret_token /root/.timesketch.token"
-        p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        output = p.communicate()[0]
-    except Exception as e:
-        print(e)
-        return "error"
-
-
-copy_secrets()
 
 with open(CONFIG_FILE, "r") as stream:
     try:

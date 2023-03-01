@@ -13,11 +13,16 @@ import redis
 from rq import Queue
 import yaml
 import time
+import re
+
+import boto3 #s3 library
+
 
 from uploader_logic import start_uploader
-import adjusters
+
 
 from fetch import run_velo_fetch
+
 CONFIG_FILE = "/etc/autosketch/config.yaml"
 with open(CONFIG_FILE, "r") as stream:
     try:
@@ -35,6 +40,7 @@ REDIS_IP = conf["REDIS_IP"]
 REDIS_PORT = conf["REDIS_PORT"]
 
 VELO_USED = conf["VELO_USED"]
+S3_STS_USED = conf["S3_STS_USED"]
 
 if VELO_USED:
     VELO_API_CONF_PATH = conf["VELO_API_CONF_PATH"]
@@ -48,10 +54,10 @@ if VELO_USED:
 # TODO Password protected archives
 def unzip(archive_path):
     '''
-    Unzips a 7z or zip archive
+    Unzips a 7z or zip archive to the same directory
     
     Args: 
-        archive_path (str): path to archive
+        archive_path (str): absolute path to archive
     '''
     logging.info("Start - Unzipping " + archive_path)
     try:
@@ -66,6 +72,37 @@ def unzip(archive_path):
     else:
         logging.info("Finished - Unzipped " + archive_path)
 
+def download_from_s3(aws_access_key, aws_secret_key, s3_path, out_dir, sts_token=None):
+    '''
+    Downloads a file from s3
+
+    Args:
+        aws_access_key (str): aws access key
+        aws_secret_key (str): aws secret key
+        s3_path (str): path to file in s3
+        out_dir (str): path to output directory
+        sts_token (str): sts token (optional)
+
+    Return:
+        str: path to downloaded file
+    '''
+    logging.info("Start - Downloading " + s3_path + " from s3")
+    bucket = re.search(r"s3://(.*?)/", s3_path).group(1)
+    zip_path = re.search(r"s3://.*?/(.*)", s3_path).group(1)
+
+    try:
+        if sts_token:
+            s3 = boto3.client('s3', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key, aws_session_token=sts_token)
+        else:
+            s3 = boto3.client('s3', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key)
+        s3.download_file(bucket, zip_path, out_dir + "/" + s3_path.split("/")[-1]) 
+
+    except Exception as e:
+        logging.error("Error - downloading " + s3_path + " from s3: " + str(e))
+        return None
+    else:
+        logging.info("Finished - Downloaded " + s3_path + " from s3")
+        return out_dir + "/" + s3_path.split("/")[-1]
 
 def run_zimmer_evtx(artifacts_path, out_dir, out_filename):
     '''
@@ -172,43 +209,6 @@ def upload_file_to_timesketch2(file_path, timeline, sketch_id, user):
     else:
         logging.info("Finished - uploading file to timesketch")
 
-def upload_file_to_timesketch(file_path, timeline, sketch_id, user):
-    '''
-    Uploads a file (csv/jsonl) to timesketch
-
-    Args:
-        file_path (str): path to csv file
-        timeline (str): name of timeline
-        sketch_id (str): id of sketch
-        user (str): user name
-    
-    '''
-    #Strange error, sometimes sketch_id is a tuple
-    if type(sketch_id) == tuple:
-        sketch_id = sketch_id[0]
-
-    logging.info("Start - Uploading file to timesketch")
-    logging.info("Trying to upload to sketch id: " + str(sketch_id) )
-    try:
-
-        ts = config.get_client(config_path=TS_RC,config_section=user)
-
-        my_sketch = ts.get_sketch(int(sketch_id))
-
-        with importer.ImportStreamer() as streamer:
-            streamer.set_sketch(my_sketch)
-            streamer.set_timeline_name(timeline)
-
-            #loop through file and upload to timesketch
-            with open(file_path, 'r') as f:
-                for line in f:
-                    streamer.add_dict(json.loads(line))
-
-    except Exception as e:
-        logging.error("Error -  uploading file to timesketch: " + str(e))
-    else:
-        logging.info("Finished - uploading file to timesketch")
-
 def run_plaso(artifacts_path, out_dir, plaso_storage):
     '''
     Runs plaso on a directory of artifacts
@@ -236,7 +236,6 @@ def run_plaso(artifacts_path, out_dir, plaso_storage):
         logging.error("Error - worker - running plaso: " + str(e))
     else:
         logging.info("Finished - worker - running plaso")
-
 
 def run_tagging(out_dir, plaso_storage, tagging_os):
     '''
@@ -274,7 +273,6 @@ def run_tagging(out_dir, plaso_storage, tagging_os):
 
     except Exception as e:
         logging.error("Error - running tagging: " + str(e))
-
 
 def upload_plaso_to_timesketch(user, plaso_storage_path, sketch_id, timeline):
     '''
@@ -372,6 +370,9 @@ def start_parser(parser_conf, task_uuid="0-0-0-0-0"):
         parser_conf (dict): parser_conf configuration
         task_uuid (str): task uuid
 
+    Returns:
+        bool: True if success, False if error
+
     '''
     log_file = UPLOAD_FOLDER + "/" + task_uuid + ".log"
     logging.basicConfig(filename=log_file, level=logging.INFO,
@@ -422,6 +423,26 @@ def start_parser(parser_conf, task_uuid="0-0-0-0-0"):
         else:
             logging.info("Velociraptor not set up - please provide velo api config and fill app config accordingly")
             logging.info("Aborting analysis")
+            return False
+    
+    if parsing_mode == "S3":
+        logging.info("Start - fetching s3 artifacts")
+        s3_access_key = parser_conf["s3_access_key"]
+        s3_secret_key = parser_conf["s3_secret_key"]
+        s3_path = parser_conf["s3_path"]
+        if S3_STS_USED:
+            logging.info("S3 STS used")
+            zip_path = download_from_s3(s3_access_key, s3_secret_key, s3_path, task_directory, sts_token=parser_conf["s3_sts_token"])
+        else:
+            zip_path = download_from_s3(s3_access_key, s3_secret_key, s3_path, task_directory)
+
+        if zip_path:
+            logging.info("Finished - fetching s3 artifacts")
+            unzip(zip_path)
+            artifacts_path = task_directory 
+            plaso_storage = "out.plaso"
+        else:
+            logging.error("Error - fetching s3 artifacts")
             return False
 
     if parsing_mode == "Upload": 
