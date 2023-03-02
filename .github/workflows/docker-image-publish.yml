@@ -16,7 +16,9 @@ jobs:
       matrix:
         include:
           - dockerfile: ./worker_parsers/Dockerfile
-            tag: autodfir/autosketch:worker
+            tag: autodfir/autosketch:worker-parsers
+          - dockerfile: ./worker_uploaders/Dockerfile
+            tag: autodfir/autosketch:worker-uploaders
           - dockerfile: ./web/Dockerfile
             tag: autodfir/autosketch:web
             
