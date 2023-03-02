@@ -7,17 +7,28 @@ services:
       - '6379:6379'
     command: redis-server 
 
-
-  autosketch-worker-plaso:
+  autosketch-worker-parser:
     restart: always
-    image: autodfir/autosketch:worker-latest
+    image: autodfir/autosketch:worker-parsers-latest
     depends_on:
       - redis
     environment:
       - worker_num_env=2
     volumes:
       - ./etc:/etc/autosketch
-      - /tmp/shared:/tmp #shared volume between webapp and worker
+      - /tmp/shared:/tmp #this is dirty solution, but it works 
+      - /:/virt:ro # bad practice, but allows to upload to AS files directly from host
+
+  autosketch-worker-uploader:
+    restart: always
+    image: autodfir/autosketch:worker-uploaders-latest
+    depends_on:
+      - redis
+    environment:
+      - worker_num_env=2
+    volumes:
+      - ./etc:/etc/autosketch
+      - /tmp/shared:/tmp #this is dirty solution, but it works
       - /:/virt:ro # bad practice, but allows to upload to AS files directly from host
 
   autosketch-webapp:
