@@ -134,16 +134,27 @@ def upload_plaso_to_timesketch(user, plaso_storage_path, sketch_id, timeline):
             streamer.set_sketch(my_sketch)
             streamer.set_timeline_name(timeline)
             streamer.add_file(plaso_storage_path)
-            while True:
-                status = streamer.state
+            error_counter = 0
+            while True and error_counter < 5:
+                try:
+                    status = streamer.state
+                except Exception as e:
+                    error_counter += 1
+                    logging.warning("Catched exceptions while checking status. Error counter: " + str(error_counter))
+                    time.sleep(60)
+                    continue
+                
                 logging.info("Indexing status: " + status)
                 if status == "SUCCESS":
                     break
+                error_counter = 0
                 time.sleep(60)
 
     except Exception as e:
         logging.error("Error - uploading plaso to timesketch: " + str(e))
     else:
+        if error_counter >= 5:
+            logging.error("Error - uploading plaso returned 5 errors in a row. Aborting")
         logging.info("Finished - uploading plaso to timesketch")
 
 
