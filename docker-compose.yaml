@@ -9,7 +9,7 @@ services:
 
   autosketch-worker-parser:
     restart: always
-    image: autodfir/autosketch:worker-parser-latest
+    image: autodfir/autosketch:worker-parsers-latest
     depends_on:
       - redis
     environment:
@@ -21,7 +21,7 @@ services:
 
   autosketch-worker-uploader:
     restart: always
-    image: autodfir/autosketch:worker-uploader-latest
+    image: autodfir/autosketch:worker-uploaders-latest
     depends_on:
       - redis
     environment:
