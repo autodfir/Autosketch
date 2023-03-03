@@ -4,6 +4,7 @@ from timesketch_import_client import importer
 import logging
 import yaml
 import time
+import traceback
 
 import adjusters
 
@@ -91,6 +92,13 @@ def upload_file_to_timesketch(file_path, timeline, sketch_id, user):
 
         my_sketch = ts.get_sketch(int(sketch_id))
 
+    except Exception as e:
+        logging.error("Error - while uploading, cannot get sketch: " + str(e))
+        logging.error(str(locals()))
+        logging.error(traceback.format_exc())
+        return
+
+    try:
         with importer.ImportStreamer() as streamer:
             streamer.set_sketch(my_sketch)
             streamer.set_timeline_name(timeline)
@@ -102,8 +110,13 @@ def upload_file_to_timesketch(file_path, timeline, sketch_id, user):
 
     except Exception as e:
         logging.error("Error -  uploading file to timesketch: " + str(e))
+        logging.error(str(locals()))
+        logging.error(traceback.format_exc())
     else:
         logging.info("Finished - uploading file to timesketch")
+
+    
+    return
 
 
 def upload_plaso_to_timesketch(user, plaso_storage_path, sketch_id, timeline):
@@ -129,7 +142,12 @@ def upload_plaso_to_timesketch(user, plaso_storage_path, sketch_id, timeline):
         logging.info("Trying to upload to sketch id: " + str(sketch_id))
 
         my_sketch = ts.get_sketch(int(sketch_id))
+    except Exception as e:
+        logging.error("Error - while uploading, cannot get sketch: " + str(e))
+        logging.error(str(locals()))
+        logging.error(traceback.format_exc())
 
+    try:
         with importer.ImportStreamer() as streamer:
             streamer.set_sketch(my_sketch)
             streamer.set_timeline_name(timeline)
@@ -152,6 +170,8 @@ def upload_plaso_to_timesketch(user, plaso_storage_path, sketch_id, timeline):
 
     except Exception as e:
         logging.error("Error - uploading plaso to timesketch: " + str(e))
+        logging.error(str(locals()))
+        logging.error(traceback.format_exc())
     else:
         if error_counter >= 5:
             logging.error("Error - uploading plaso returned 5 errors in a row. Aborting")
