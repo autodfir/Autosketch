@@ -1,4 +1,4 @@
-FROM log2timeline/plaso:20221229
+FROM log2timeline/plaso:20230311
 #FROM python:3.8.10-slim-buster
 
 RUN apt-get update && apt-get install -y \
