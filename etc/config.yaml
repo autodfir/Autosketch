@@ -4,10 +4,11 @@ REDIS_PORT: 6379
 APP_IP: '0.0.0.0'
 APP_PORT: 5001
 #Should be address accessible from outside
-TS_IP: '192.168.1.15'
-TS_PORT: 80
+TS_IP: 'TS_IP_HERE'
+TS_PORT: TS_PORT_HERE
 TS_RC: /tmp/.timesketchrc
 UPLOAD_FOLDER: '/tmp'
 
 VELO_USED: false
+S3_STS_USED: false
 VELO_API_CONF_PATH: '/app/velo_api.config.yaml'

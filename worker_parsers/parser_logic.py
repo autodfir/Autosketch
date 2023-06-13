@@ -13,10 +13,16 @@ import redis
 from rq import Queue
 import yaml
 import time
+import re
 
-import adjusters
+import boto3 #s3 library
+from boto3.session import Session
+
+from uploader_logic import start_uploader
+
 
 from fetch import run_velo_fetch
+
 CONFIG_FILE = "/etc/autosketch/config.yaml"
 with open(CONFIG_FILE, "r") as stream:
     try:
@@ -34,6 +40,7 @@ REDIS_IP = conf["REDIS_IP"]
 REDIS_PORT = conf["REDIS_PORT"]
 
 VELO_USED = conf["VELO_USED"]
+S3_STS_USED = conf["S3_STS_USED"]
 
 if VELO_USED:
     VELO_API_CONF_PATH = conf["VELO_API_CONF_PATH"]
@@ -47,10 +54,10 @@ if VELO_USED:
 # TODO Password protected archives
 def unzip(archive_path):
     '''
-    Unzips a 7z or zip archive
+    Unzips a 7z or zip archive to the same directory
     
     Args: 
-        archive_path (str): path to archive
+        archive_path (str): absolute path to archive
     '''
     logging.info("Start - Unzipping " + archive_path)
     try:
@@ -65,6 +72,51 @@ def unzip(archive_path):
     else:
         logging.info("Finished - Unzipped " + archive_path)
 
+def download_from_s3(aws_access_key, aws_secret_key, s3_path, out_dir, sts_token=None):
+    '''
+    Downloads a file from s3
+
+    Args:
+        aws_access_key (str): aws access key
+        aws_secret_key (str): aws secret key
+        s3_path (str): path to file in s3
+        out_dir (str): path to output directory
+        sts_token (str): sts token (optional)
+
+    Return:
+        str: path to downloaded file
+    '''
+    logging.info("Start - Downloading " + s3_path + " from s3")
+    bucket = re.search(r"s3://(.*?)/", s3_path).group(1)
+    zip_path = re.search(r"s3://.*?/(.*)", s3_path).group(1)
+    region = 'eu-central-1' # TODO parametrize from config or check if needed
+    out_path = out_dir + "/" + s3_path.split("/")[-1]
+    logging.info("Bucket: " + bucket)
+    logging.info("Zip path: " + zip_path)
+    logging.info("Out path: " + out_path)
+
+    try:
+        s3 = boto3.resource("s3")
+        if sts_token:
+            session = Session(aws_access_key_id=aws_access_key,
+                  aws_secret_access_key=aws_secret_key,
+                  aws_session_token=sts_token,
+                  region_name=region)  
+
+            
+        else:
+            session = Session(aws_access_key_id=aws_access_key,
+                  aws_secret_access_key=aws_secret_key,
+                  region_name=region) 
+            
+        #s3.download_file(bucket, zip_path, out_dir + "/" + s3_path.split("/")[-1]) 
+        session.resource('s3').Bucket(bucket).download_file(Key=zip_path, Filename=out_path)
+    except Exception as e:
+        logging.error("Error - downloading " + s3_path + " from s3: " + str(e))
+        return None
+    else:
+        logging.info("Finished - Downloaded " + s3_path + " from s3")
+        return out_dir + "/" + s3_path.split("/")[-1]
 
 def run_zimmer_evtx(artifacts_path, out_dir, out_filename):
     '''
@@ -171,43 +223,6 @@ def upload_file_to_timesketch2(file_path, timeline, sketch_id, user):
     else:
         logging.info("Finished - uploading file to timesketch")
 
-def upload_file_to_timesketch(file_path, timeline, sketch_id, user):
-    '''
-    Uploads a file (csv/jsonl) to timesketch
-
-    Args:
-        file_path (str): path to csv file
-        timeline (str): name of timeline
-        sketch_id (str): id of sketch
-        user (str): user name
-    
-    '''
-    #Strange error, sometimes sketch_id is a tuple
-    if type(sketch_id) == tuple:
-        sketch_id = sketch_id[0]
-
-    logging.info("Start - Uploading file to timesketch")
-    logging.info("Trying to upload to sketch id: " + str(sketch_id) )
-    try:
-
-        ts = config.get_client(config_path=TS_RC,config_section=user)
-
-        my_sketch = ts.get_sketch(int(sketch_id))
-
-        with importer.ImportStreamer() as streamer:
-            streamer.set_sketch(my_sketch)
-            streamer.set_timeline_name(timeline)
-
-            #loop through file and upload to timesketch
-            with open(file_path, 'r') as f:
-                for line in f:
-                    streamer.add_dict(json.loads(line))
-
-    except Exception as e:
-        logging.error("Error -  uploading file to timesketch: " + str(e))
-    else:
-        logging.info("Finished - uploading file to timesketch")
-
 def run_plaso(artifacts_path, out_dir, plaso_storage):
     '''
     Runs plaso on a directory of artifacts
@@ -236,7 +251,6 @@ def run_plaso(artifacts_path, out_dir, plaso_storage):
     else:
         logging.info("Finished - worker - running plaso")
 
-
 def run_tagging(out_dir, plaso_storage, tagging_os):
     '''
     Runs tagging on a plaso storage file
@@ -253,13 +267,13 @@ def run_tagging(out_dir, plaso_storage, tagging_os):
         if tagging_os == "Windows":
             cmd = "psort.py --status_view linear --analysis tagging --tagging-file /usr/share/plaso/tag_windows.txt -o null " + out_dir + "/" + plaso_storage
             p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            #communicate prrocess and save stdout to output variable
+            # communicate prrocess and save stdout to output variable
             output = p.communicate()[0].decode('utf-8')
 
         elif tagging_os == "Linux":
             cmd = "psort.py --status_view linear --analysis tagging --tagging-file /usr/share/plaso/tag_linux.txt -o null " + out_dir + "/" + plaso_storage
             p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            #communicate prrocess and save stdout to output variable
+            # communicate prrocess and save stdout to output variable
             output = p.communicate()[0].decode('utf-8')
             
         else:
@@ -274,19 +288,18 @@ def run_tagging(out_dir, plaso_storage, tagging_os):
     except Exception as e:
         logging.error("Error - running tagging: " + str(e))
 
-
 def upload_plaso_to_timesketch(user, plaso_storage_path, sketch_id, timeline):
     '''
     Uploads a plaso storage file to timesketch
 
     Args:
-        user (str): user name
+        user (str): username
         plaso_storage_path (str): path to plaso storage file
         sketch_id (str): id of sketch
         timeline (str): name of timeline
 
     '''
-    #Strange error, sometimes sketch_id is a tuple
+    # Strange error, sometimes sketch_id is a tuple
     if type(sketch_id) == tuple:
         sketch_id = sketch_id[0]
 
@@ -362,48 +375,44 @@ def create_hunt_download(hunt_id):
         logging.error("Error - creating hunt download: " + str(e))
         return "error"
 
-def start(ts_flow_conf, task_uuid="0-0-0-0-0"):
+
+def start_parser(parser_conf, task_uuid="0-0-0-0-0"):
     '''
     Starts the worker, entrypoint of new autosketch task
 
     Args:
-        ts_flow_conf (dict): ts_flow configuration
+        parser_conf (dict): parser_conf configuration
         task_uuid (str): task uuid
+
+    Returns:
+        bool: True if success, False if error
 
     '''
     log_file = UPLOAD_FOLDER + "/" + task_uuid + ".log"
     logging.basicConfig(filename=log_file, level=logging.INFO,
-                    format=f'%(asctime)s %(levelname)s {ts_flow_conf["timeline"]} - %(message)s')
+                        format=f'%(asctime)s %(levelname)s {parser_conf["timeline"]} - %(message)s')
     
 
-    #with open(task_dir + "/ts_flow.json") as f:
-    #    ts_flow_conf = json.load(f)
+    #with open(task_dir + "/parser_conf.json") as f:
+    #    parser_conf = json.load(f)
 
-    user = ts_flow_conf["user"]
+    q = Queue(name="uploaders", connection=redis.Redis(host=REDIS_IP, port=REDIS_PORT))
 
-    if ts_flow_conf["existing"] == "No":
-        sketch_id = create_sketch(ts_flow_conf["sketch_new"],
-                                    ts_flow_conf["sketch_desc"],
-                                    user)
 
-        ts_flow_conf["sketch_id_from_ts"] = str(sketch_id)
-        ts_flow_conf["existing"] = "Yes"
+    parsing_mode = parser_conf["parsing_mode"]
+    task_directory = parser_conf["dir"]
+    timeline_name = parser_conf["timeline"]
 
-    parsing_mode = ts_flow_conf["parsing_mode"]
-    task_directory = ts_flow_conf["dir"]
-    timeline_name = ts_flow_conf["timeline"]
-    sketch_id = ts_flow_conf["sketch_id_from_ts"],
 
-    
     if parsing_mode == "Velo":
         if VELO_USED:
             logging.info("Velociraptor library used - tasks will be queued for every host")
             logging.info("Start - creating hunt download")
-            res = create_hunt_download(ts_flow_conf["hunt_id"])
+            res = create_hunt_download(parser_conf["hunt_id"])
             if res == "Scheduled":
                 logging.info("Finished - creating hunt download")
-                vfs = "downloads/hunts/" + ts_flow_conf["hunt_id"] + "/" + ts_flow_conf["file"]
-                full_path = ts_flow_conf["dir"] + "/" + ts_flow_conf["file"]
+                vfs = "downloads/hunts/" + parser_conf["hunt_id"] + "/" + parser_conf["file"]
+                full_path = parser_conf["dir"] + "/" + parser_conf["file"]
                 logging.info("Start - fetching velociraptor hunt results")
                 run_velo_fetch(VELO_API_CONF, vfs, full_path)
                 logging.info("Finished - fetching velociraptor hunt results")
@@ -413,8 +422,7 @@ def start(ts_flow_conf, task_uuid="0-0-0-0-0"):
                 hosts = os.listdir(artifacts_dir)
                 hosts_paths = [artifacts_dir + "/" + host for host in hosts]
 
-                
-                new_conf_file = ts_flow_conf
+                new_conf_file = parser_conf
                 for host_path in hosts_paths:
                     new_conf_file["timeline"] = timeline_name + "_" + host_path.split("/")[-1]
                     new_conf_file["parsing_mode"] = "Post-Velo"
@@ -423,43 +431,69 @@ def start(ts_flow_conf, task_uuid="0-0-0-0-0"):
                     with open(os.path.join(host_path, "ts_flow.json"), "w") as f:
                         json.dump(new_conf_file, f, indent=4)
                     q = Queue(connection=redis.Redis(host=REDIS_IP,port=REDIS_PORT))
-                    q.enqueue(start, host_path, job_timeout=36000)
+                    q.enqueue(start_parser, host_path, job_timeout=36000)
                     logging.info("Queued analysis of " + host_path.split("/")[-1] + " host")
             return True
         else:
             logging.info("Velociraptor not set up - please provide velo api config and fill app config accordingly")
             logging.info("Aborting analysis")
             return False
+    
+    if parsing_mode == "S3":
+        logging.info("Start - fetching s3 artifacts")
+        s3_access_key = parser_conf["s3_access_key"]
+        s3_secret_key = parser_conf["s3_secret_key"]
+        s3_path = parser_conf["s3_path"]
+        if S3_STS_USED:
+            logging.info("S3 STS used")
+            zip_path = download_from_s3(s3_access_key, s3_secret_key, s3_path, task_directory, sts_token=parser_conf["s3_sts_token"])
+        else:
+            zip_path = download_from_s3(s3_access_key, s3_secret_key, s3_path, task_directory)
+
+        if zip_path:
+            logging.info("Finished - fetching s3 artifacts")
+            unzip(zip_path)
+            artifacts_path = task_directory 
+            plaso_storage = "out.plaso"
+        else:
+            logging.error("Error - fetching s3 artifacts")
+            return False
 
     if parsing_mode == "Upload": 
-        zip_filename = ts_flow_conf["file"] #TODO directory straversal ?
+        zip_filename = parser_conf["file"] #TODO directory straversal ?
         full_path = task_directory + "/" + zip_filename
         unzip(full_path)
         artifacts_path = task_directory + "/" + zip_filename.rsplit(".", 1)[0]
         plaso_storage = zip_filename.rsplit(".", 1)[0] + ".plaso"
     
     elif parsing_mode == "Post-Velo" or parsing_mode == "Local":
-        artifacts_path = ts_flow_conf["dir_path"]
+        artifacts_path = parser_conf["dir_path"]
         plaso_storage = timeline_name + ".plaso"
 
-
-    
-    if "evtx" in ts_flow_conf:
+    # variables needed to upload data
+    # sketch_id = parser_conf["sketch_id_from_ts"]
+    # user = parser_conf["user"]
+    if "evtx" in parser_conf:
         #out_csv_path = run_zimmer_evtx(artifacts_path, task_directory, timeline_name)
         #adjusted_csv_path = adjusters.adjust_csv_to_timesketch(out_csv_path)
         
-        out_jsnol_path = run_zimmer_evtx_json(artifacts_path, task_directory, timeline_name)
-        adjusted_jsonl_path = adjusters.adjust_EZ_EvtxEcmd_jsonl(out_jsnol_path)
+        parser_conf["file_to_upload"] = run_zimmer_evtx_json(artifacts_path, task_directory, timeline_name)
+        parser_conf["parser_uploading"] = "evtx_zimmer"
+        q.enqueue(start_uploader, parser_conf, task_uuid, job_timeout=36000)
         
-        
-        upload_file_to_timesketch(adjusted_jsonl_path, timeline_name,
-                                 sketch_id, user)
+        # upload_file_to_timesketch(adjusted_jsonl_path, timeline_name,
+        #                          sketch_id, user)
 
-    if "plaso" in ts_flow_conf:
+    if "plaso" in parser_conf:
         run_plaso(artifacts_path, task_directory, plaso_storage)
-        run_tagging(task_directory, plaso_storage, ts_flow_conf["tagging"])
-        upload_plaso_to_timesketch(user, task_directory + "/" + plaso_storage,
-                                   sketch_id, timeline_name)
+        run_tagging(task_directory, plaso_storage, parser_conf["tagging"])
+        parser_conf["file_to_upload"] = task_directory + "/" + plaso_storage
+        parser_conf["parser_uploading"] = "plaso"
+        q.enqueue(start_uploader, parser_conf, task_uuid, job_timeout=36000)
+
+
+        # upload_plaso_to_timesketch(user, task_directory + "/" + plaso_storage,
+        #                            sketch_id, timeline_name)
 
     logging.info("Finished")
     return True

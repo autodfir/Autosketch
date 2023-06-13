@@ -107,7 +107,7 @@ def adjust_EZ_EvtxEcmd_jsonl(jsonl_path):
             obj = json.loads(line)
             # only if MapDescription exists
             if "MapDescription" in obj:
-                obj["tag"] = obj["MapDescription"]
+                obj["tag"] = "evtx_"+ obj["MapDescription"].replace(" ", "_").lower()
                 del obj["MapDescription"]
             obj["message"] = obj["Payload"]
             del obj["Payload"]
