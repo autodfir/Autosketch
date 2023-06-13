@@ -16,7 +16,7 @@ import time
 import re
 
 import boto3 #s3 library
-
+from boto3.session import Session
 
 from uploader_logic import start_uploader
 
@@ -89,14 +89,28 @@ def download_from_s3(aws_access_key, aws_secret_key, s3_path, out_dir, sts_token
     logging.info("Start - Downloading " + s3_path + " from s3")
     bucket = re.search(r"s3://(.*?)/", s3_path).group(1)
     zip_path = re.search(r"s3://.*?/(.*)", s3_path).group(1)
+    region = 'eu-central-1' # TODO parametrize from config or check if needed
+    out_path = out_dir + "/" + s3_path.split("/")[-1]
+    logging.info("Bucket: " + bucket)
+    logging.info("Zip path: " + zip_path)
+    logging.info("Out path: " + out_path)
 
     try:
+        s3 = boto3.resource("s3")
         if sts_token:
-            s3 = boto3.client('s3', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key, aws_session_token=sts_token)
-        else:
-            s3 = boto3.client('s3', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key)
-        s3.download_file(bucket, zip_path, out_dir + "/" + s3_path.split("/")[-1]) 
+            session = Session(aws_access_key_id=aws_access_key,
+                  aws_secret_access_key=aws_secret_key,
+                  aws_session_token=sts_token,
+                  region_name=region)  
 
+            
+        else:
+            session = Session(aws_access_key_id=aws_access_key,
+                  aws_secret_access_key=aws_secret_key,
+                  region_name=region) 
+            
+        #s3.download_file(bucket, zip_path, out_dir + "/" + s3_path.split("/")[-1]) 
+        session.resource('s3').Bucket(bucket).download_file(Key=zip_path, Filename=out_path)
     except Exception as e:
         logging.error("Error - downloading " + s3_path + " from s3: " + str(e))
         return None
