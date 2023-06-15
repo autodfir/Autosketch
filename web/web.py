@@ -58,6 +58,7 @@ try:
         TS_RC = conf["TS_RC"]
         VELO_USED = conf["VELO_USED"]
         S3_STS_USED = conf["S3_STS_USED"]
+        USE_SSL = conf["USE_SSL"]
 
         app.config.from_object(rq_dashboard.default_settings)
         app.register_blueprint(rq_dashboard.blueprint, url_prefix="/rq")
@@ -288,4 +289,7 @@ def get_timelines(sketch_id):
 
 
 if __name__ == "__main__":
-    app.run(host=APP_IP, port=APP_PORT)
+    if USE_SSL:
+        app.run(host=APP_IP, port=APP_PORT, ssl_context=('/etc/autosketch/cert.pem', '/etc/autosketch/key.pem'))
+    else:
+        app.run(host=APP_IP, port=APP_PORT)
