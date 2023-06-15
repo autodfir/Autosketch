@@ -12,3 +12,5 @@ UPLOAD_FOLDER: '/tmp'
 VELO_USED: false
 S3_STS_USED: false
 VELO_API_CONF_PATH: '/app/velo_api.config.yaml'
+
+USE_SSL: true
