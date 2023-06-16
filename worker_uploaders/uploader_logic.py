@@ -112,9 +112,9 @@ def upload_plaso_to_timesketch(user, plaso_storage_path, sketch_id, timeline):
             streamer.set_timeline_name(timeline)
 
             # index name provided to correctly upload data to already exisiting timeline
-            timeline_index_name = my_sketch.get_timeline(timeline_name=timeline).index_name
+            timeline_index_name = my_sketch.get_timeline(timeline_name=timeline)
             if timeline_index_name is not None:
-                streamer.set_index_name(timeline_index_name)
+                streamer.set_index_name(timeline_index_name.index_name)
 
             streamer.add_file(plaso_storage_path)
             
