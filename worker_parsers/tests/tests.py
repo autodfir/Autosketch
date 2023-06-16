@@ -130,8 +130,17 @@ class TestWorker(unittest.TestCase):
         while task.result is None:
                 pass
         
-        #sleep for 20 seconds to ensure indexing is done
-        time.sleep(20)
+        #if resukt is empty string, then it failed
+        self.assertNotEqual(task.result, '', 'Task failed')
+
+        upload_task_id = task.result
+        #get task by id and wait for task to finish
+        upload_task = self.queue.fetch_job(upload_task_id)
+        while upload_task.result is None:
+                pass
+
+        #sleep for 5 seconds to ensure indexing is done
+        time.sleep(5)
         
 
         #get sketch id and sketch name by comparing with sketch name
