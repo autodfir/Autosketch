@@ -59,7 +59,8 @@ def upload_file_to_timesketch(file_path, timeline, sketch_id, user):
 
             # index name provided to correctly upload data to already exisiting timeline
             timeline_index_name = my_sketch.get_timeline(timeline_name=timeline).index_name
-            streamer.set_index_name(timeline_index_name)
+            if timeline_index_name is not None:
+                streamer.set_index_name(timeline_index_name)
 
             # loop through file and upload to timesketch
             with open(file_path, 'r') as f:
@@ -112,7 +113,8 @@ def upload_plaso_to_timesketch(user, plaso_storage_path, sketch_id, timeline):
 
             # index name provided to correctly upload data to already exisiting timeline
             timeline_index_name = my_sketch.get_timeline(timeline_name=timeline).index_name
-            streamer.set_index_name(timeline_index_name)
+            if timeline_index_name is not None:
+                streamer.set_index_name(timeline_index_name)
 
             streamer.add_file(plaso_storage_path)
             
