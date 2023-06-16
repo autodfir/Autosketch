@@ -84,10 +84,13 @@ class TestWorker(unittest.TestCase):
         #get sketch id and sketch name by comparing with sketch name
         ts = config.get_client(config_path=TS_RC,config_section=username)
         sketches = ts.list_sketches()
-
-        sketches_filtered = filter(lambda sketch: sketch.name == sketch_name, sketches)  
+        for sketch in sketches:
+            if sketch.name == sketch_name:
+                sketch_id = sketch.id
+                break
+        #sketches_filtered = filter(lambda sketch: sketch.name == sketch_name, sketches)  
           
-        sketch_id = next(sketches_filtered).id
+        #sketch_id = next(sketches_filtered).id
 
         sketch = ts.get_sketch(sketch_id=sketch_id)
         
