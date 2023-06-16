@@ -58,9 +58,9 @@ def upload_file_to_timesketch(file_path, timeline, sketch_id, user):
             streamer.set_timeline_name(timeline)
 
             # index name provided to correctly upload data to already exisiting timeline
-            timeline_index_name = my_sketch.get_timeline(timeline_name=timeline).index_name
+            timeline_index_name = my_sketch.get_timeline(timeline_name=timeline)
             if timeline_index_name is not None:
-                streamer.set_index_name(timeline_index_name)
+                streamer.set_index_name(timeline_index_name.index_name)
 
             # loop through file and upload to timesketch
             with open(file_path, 'r') as f:
