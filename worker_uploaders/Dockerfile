@@ -13,4 +13,4 @@ RUN pip3 install -r requirements.txt
 
 COPY worker_uploaders/ ./
 
-ENTRYPOINT /usr/bin/python3 worker.py $worker_num_env
+ENTRYPOINT python3 worker.py $worker_num_env
