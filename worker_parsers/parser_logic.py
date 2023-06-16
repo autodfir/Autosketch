@@ -495,7 +495,7 @@ def start_parser(parser_conf, task_uuid="0-0-0-0-0"):
         # upload_plaso_to_timesketch(user, task_directory + "/" + plaso_storage,
         #                            sketch_id, timeline_name)
 
-    logging.info("Finished")
+    logging.info("Finished, created task id: " + str(task.id) )
     #return task id
     return task.id
 

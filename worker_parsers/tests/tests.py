@@ -132,10 +132,16 @@ class TestWorker(unittest.TestCase):
         
         #if resukt is empty string, then it failed
         self.assertNotEqual(task.result, '', 'Task failed')
+        self.assertIsNotNone(task.result, 'Task failed')
 
         upload_task_id = task.result
         #get task by id and wait for task to finish
+        time.sleep(5)
+        
         upload_task = self.queue.fetch_job(upload_task_id)
+
+        self.assertIsNotNone(upload_task, 'Task failed')
+
         while upload_task.result is None:
                 pass
 
