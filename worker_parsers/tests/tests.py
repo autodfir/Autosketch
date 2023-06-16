@@ -135,9 +135,11 @@ class TestWorker(unittest.TestCase):
         self.assertIsNotNone(task.result, 'Task failed')
 
         upload_task_id = task.result
+        logging.info(f'Result: {upload_task_id}')
+        logging.info(f'Upload task id: {upload_task_id}')
         #get task by id and wait for task to finish
         time.sleep(5)
-        
+
         upload_task = self.queue.fetch_job(upload_task_id)
 
         self.assertIsNotNone(upload_task, 'Task failed')
