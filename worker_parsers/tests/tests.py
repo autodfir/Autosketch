@@ -39,7 +39,8 @@ except FileNotFoundError as e:
         print(e)
 
 class TestWorker(unittest.TestCase):
-    queue = Queue(name="parsers", connection=redis.Redis(host=REDIS_IP,port=REDIS_PORT))
+    queue_parsers = Queue(name="parsers", connection=redis.Redis(host=REDIS_IP,port=REDIS_PORT))
+    queue_uploaders = Queue(name="uploaders", connection=redis.Redis(host=REDIS_IP,port=REDIS_PORT))
 
     def test_000_check_connection(self):
         #TODO
@@ -72,7 +73,7 @@ class TestWorker(unittest.TestCase):
 
         #add redis task to queue
         task_uuid = test_dir
-        task = self.queue.enqueue(start_parser, ts_flow_conf, task_uuid, job_timeout=36000)
+        task = self.queue_parsers.enqueue(start_parser, ts_flow_conf, task_uuid, job_timeout=36000)
 
         #wait for task to finish
         while task.result is None:
@@ -124,13 +125,13 @@ class TestWorker(unittest.TestCase):
 
         #add redis task to queue
         task_uuid = test_dir
-        task = self.queue.enqueue(start_parser, ts_flow_conf, task_uuid, job_timeout=36000)
+        task = self.queue_parsers.enqueue(start_parser, ts_flow_conf, task_uuid, job_timeout=36000)
 
         #wait for task to finish
         while task.result is None:
                 pass
         
-        #if resukt is empty string, then it failed
+        #if result is empty string, then it failed
         self.assertNotEqual(task.result, '', 'Task failed')
         self.assertIsNotNone(task.result, 'Task failed')
 
@@ -138,9 +139,9 @@ class TestWorker(unittest.TestCase):
         logging.info(f'Result: {upload_task_id}')
         logging.info(f'Upload task id: {upload_task_id}')
         #get task by id and wait for task to finish
-        time.sleep(5)
+        time.sleep(1)
 
-        upload_task = self.queue.fetch_job(upload_task_id)
+        upload_task = self.queue_uploaders.fetch_job(upload_task_id)
 
         self.assertIsNotNone(upload_task, 'Task failed')
 
