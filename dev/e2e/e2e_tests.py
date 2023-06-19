@@ -6,7 +6,14 @@ from timesketch_api_client.client import TimesketchApi
 from timesketch_api_client import search
 
 AS_URL = "http://localhost:5001"
-TS_URL = "http://localhost"
+
+# Get TS_URL from argument called --ts_url or use default value "http://localhost"
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument('--ts_url', help="Timesketch URL, default is http://localhost", default="http://localhost")
+args = parser.parse_args()
+TS_URL = args.ts_url
+
 
 def login_test_user():
     #make session
