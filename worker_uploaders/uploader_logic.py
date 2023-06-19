@@ -23,52 +23,6 @@ REDIS_IP = conf["REDIS_IP"]
 REDIS_PORT = conf["REDIS_PORT"]
 
 
-def upload_file_to_timesketch2(file_path, timeline, sketch_id, user):
-    '''
-    Uploads a file (csv/jsonl) to timesketch
-
-    Args:
-        file_path (str): path to csv file
-        timeline (str): name of timeline
-        sketch_id (str): id of sketch
-        user (str): user name
-    
-    '''
-    # Strange error, sometimes sketch_id is a tuple
-    if type(sketch_id) == tuple:
-        sketch_id = sketch_id[0]
-
-    logging.info("Start - Uploading file to timesketch")
-    logging.info("Trying to upload to sketch id: " + str(sketch_id))
-    try:
-
-        ts = config.get_client(config_path=TS_RC, config_section=user)
-
-        my_sketch = ts.get_sketch(int(sketch_id))
-
-        with importer.ImportStreamer() as streamer:
-            streamer.set_sketch(my_sketch)
-            streamer.set_timeline_name(timeline)
-            streamer.set_filesize_threshold(200000000)
-            streamer.set_entry_threshold(100000)
-            streamer.add_file(file_path)
-
-            while True:
-                status = streamer.state
-                logging.info("Indexing status: " + status)
-                if status == "SUCCESS":
-                    break
-                elif status == "FAILURE":
-                    logging.error("Error - Uploading file to timesketch")
-                    break
-                time.sleep(60)
-
-    except Exception as e:
-        logging.error("Error -  uploading file to timesketch: " + str(e))
-    else:
-        logging.info("Finished - uploading file to timesketch")
-
-
 def upload_file_to_timesketch(file_path, timeline, sketch_id, user):
     '''
     Uploads a file (csv/jsonl) to timesketch
@@ -102,6 +56,11 @@ def upload_file_to_timesketch(file_path, timeline, sketch_id, user):
         with importer.ImportStreamer() as streamer:
             streamer.set_sketch(my_sketch)
             streamer.set_timeline_name(timeline)
+
+            # index name provided to correctly upload data to already exisiting timeline
+            timeline_index_name = my_sketch.get_timeline(timeline_name=timeline)
+            if timeline_index_name is not None:
+                streamer.set_index_name(timeline_index_name.index_name)
 
             # loop through file and upload to timesketch
             with open(file_path, 'r') as f:
@@ -151,7 +110,14 @@ def upload_plaso_to_timesketch(user, plaso_storage_path, sketch_id, timeline):
         with importer.ImportStreamer() as streamer:
             streamer.set_sketch(my_sketch)
             streamer.set_timeline_name(timeline)
+
+            # index name provided to correctly upload data to already exisiting timeline
+            timeline_index_name = my_sketch.get_timeline(timeline_name=timeline)
+            if timeline_index_name is not None:
+                streamer.set_index_name(timeline_index_name.index_name)
+
             streamer.add_file(plaso_storage_path)
+            
             error_counter = 0
             while True and error_counter < 5:
                 try:
