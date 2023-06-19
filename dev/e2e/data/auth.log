@@ -1,0 +1,100 @@
+Jan 26 21:17:09 test-user-ubuntu sudo: pam_unix(sudo:session): session opened for user root by (uid=0)
+Jan 26 21:17:10 test-user-ubuntu sudo: pam_unix(sudo:session): session closed for user root
+Jan 26 21:17:24 test-user-ubuntu sudo: test-user : TTY=pts/0 ; PWD=/home/test-user ; USER=root ; COMMAND=/usr/local/bin/docker context create ecs mycontext
+Jan 26 21:17:24 test-user-ubuntu sudo: pam_unix(sudo:session): session opened for user root by (uid=0)
+Jan 26 21:22:39 test-user-ubuntu sudo: pam_unix(sudo:session): session closed for user root
+Jan 26 21:26:20 test-user-ubuntu sudo: test-user : TTY=pts/0 ; PWD=/home/test-user ; USER=root ; COMMAND=/usr/local/bin/docker context create ecs mycontext
+Jan 26 21:26:20 test-user-ubuntu sudo: pam_unix(sudo:session): session opened for user root by (uid=0)
+Jan 26 21:26:47 test-user-ubuntu sudo: pam_unix(sudo:session): session closed for user root
+Jan 26 21:27:56 test-user-ubuntu sudo: test-user : TTY=pts/0 ; PWD=/home/test-user ; USER=root ; COMMAND=/usr/local/bin/docker context ls
+Jan 26 21:27:56 test-user-ubuntu sudo: pam_unix(sudo:session): session opened for user root by (uid=0)
+Jan 26 21:27:56 test-user-ubuntu sudo: pam_unix(sudo:session): session closed for user root
+Jan 26 21:28:06 test-user-ubuntu sudo: test-user : TTY=pts/0 ; PWD=/home/test-user ; USER=root ; COMMAND=/usr/local/bin/docker context use mycontext
+Jan 26 21:28:06 test-user-ubuntu sudo: pam_unix(sudo:session): session opened for user root by (uid=0)
+Jan 26 21:28:06 test-user-ubuntu sudo: pam_unix(sudo:session): session closed for user root
+Jan 26 21:28:13 test-user-ubuntu sudo: test-user : TTY=pts/0 ; PWD=/home/test-user ; USER=root ; COMMAND=/usr/local/bin/docker context ls
+Jan 26 21:28:13 test-user-ubuntu sudo: pam_unix(sudo:session): session opened for user root by (uid=0)
+Jan 26 21:28:13 test-user-ubuntu sudo: pam_unix(sudo:session): session closed for user root
+Jan 26 21:30:01 test-user-ubuntu CRON[31090]: pam_unix(cron:session): session opened for user root by (uid=0)
+Jan 26 21:30:01 test-user-ubuntu CRON[31090]: pam_unix(cron:session): session closed for user root
+Jan 26 21:30:18 test-user-ubuntu sudo: test-user : TTY=pts/0 ; PWD=/opt ; USER=root ; COMMAND=/usr/bin/docker-compose up
+Jan 26 21:30:18 test-user-ubuntu sudo: pam_unix(sudo:session): session opened for user root by (uid=0)
+Jan 26 21:30:18 test-user-ubuntu sudo: pam_unix(sudo:session): session closed for user root
+Jan 26 21:30:28 test-user-ubuntu sudo: test-user : TTY=pts/0 ; PWD=/opt/timesketch ; USER=root ; COMMAND=/usr/bin/docker-compose up
+Jan 26 21:30:28 test-user-ubuntu sudo: pam_unix(sudo:session): session opened for user root by (uid=0)
+Jan 26 21:30:53 test-user-ubuntu sudo: pam_unix(sudo:session): session closed for user root
+Jan 26 21:31:39 test-user-ubuntu sudo: test-user : TTY=pts/0 ; PWD=/opt/timesketch ; USER=root ; COMMAND=/usr/local/bin/docker compose up
+Jan 26 21:31:39 test-user-ubuntu sudo: pam_unix(sudo:session): session opened for user root by (uid=0)
+Jan 26 21:31:41 test-user-ubuntu sudo: pam_unix(sudo:session): session closed for user root
+Jan 26 21:44:06 test-user-ubuntu systemd-logind[1118]: Lid closed.
+Jan 26 21:44:06 test-user-ubuntu systemd-logind[1118]: Suspending...
+Jan 26 22:00:10 test-user-ubuntu systemd-logind[1118]: Lid opened.
+Jan 26 22:00:10 test-user-ubuntu systemd-logind[1118]: Operation 'sleep' finished.
+Jan 26 22:00:16 test-user-ubuntu gdm-password]: gkr-pam: unlocked login keyring
+Jan 26 22:17:01 test-user-ubuntu CRON[33265]: pam_unix(cron:session): session opened for user root by (uid=0)
+Jan 26 22:17:01 test-user-ubuntu CRON[33265]: pam_unix(cron:session): session closed for user root
+Jan 26 22:30:01 test-user-ubuntu CRON[33569]: pam_unix(cron:session): session opened for user root by (uid=0)
+Jan 26 22:30:01 test-user-ubuntu CRON[33569]: pam_unix(cron:session): session closed for user root
+Jan 26 22:31:08 test-user-ubuntu sshd[15669]: pam_unix(sshd:session): session closed for user test-user
+Jan 26 22:31:08 test-user-ubuntu systemd-logind[1118]: Session 22 logged out. Waiting for processes to exit.
+Jan 26 22:31:08 test-user-ubuntu systemd-logind[1118]: Removed session 22.
+Jan 26 23:17:02 test-user-ubuntu CRON[35216]: pam_unix(cron:session): session opened for user root by (uid=0)
+Jan 26 23:17:02 test-user-ubuntu CRON[35216]: pam_unix(cron:session): session closed for user root
+Jan 26 23:26:39 test-user-ubuntu systemd-logind[1118]: Lid closed.
+Jan 26 23:26:39 test-user-ubuntu systemd-logind[1118]: Suspending...
+Jan 27 08:47:44 test-user-ubuntu systemd-logind[1118]: Operation 'sleep' finished.
+Jan 27 08:47:45 test-user-ubuntu systemd-logind[1118]: Watching system buttons on /dev/input/event10 (Microsoft Natural® Ergonomic Keyboard 4000)
+Jan 27 08:47:45 test-user-ubuntu systemd-logind[1118]: Watching system buttons on /dev/input/event9 (Microsoft Natural® Ergonomic Keyboard 4000)
+Jan 27 08:47:50 test-user-ubuntu PackageKit: uid 1000 is trying to obtain org.freedesktop.packagekit.system-sources-refresh auth (only_trusted:0)
+Jan 27 08:47:50 test-user-ubuntu PackageKit: uid 1000 obtained auth for org.freedesktop.packagekit.system-sources-refresh
+Jan 27 08:47:54 test-user-ubuntu sshd[36413]: Accepted password for test-user from 192.168.1.36 port 61070 ssh2
+Jan 27 08:47:54 test-user-ubuntu sshd[36413]: pam_unix(sshd:session): session opened for user test-user by (uid=0)
+Jan 27 08:47:54 test-user-ubuntu systemd-logind[1118]: New session 72 of user test-user.
+Jan 27 08:47:55 test-user-ubuntu systemd-logind[1118]: Lid opened.
+Jan 27 08:48:01 test-user-ubuntu PackageKit: uid 1000 is trying to obtain org.freedesktop.packagekit.system-sources-refresh auth (only_trusted:0)
+Jan 27 08:48:01 test-user-ubuntu PackageKit: uid 1000 obtained auth for org.freedesktop.packagekit.system-sources-refresh
+Jan 27 08:48:04 test-user-ubuntu PackageKit: uid 1000 is trying to obtain org.freedesktop.packagekit.system-sources-refresh auth (only_trusted:0)
+Jan 27 08:48:04 test-user-ubuntu PackageKit: uid 1000 obtained auth for org.freedesktop.packagekit.system-sources-refresh
+Jan 27 08:48:07 test-user-ubuntu PackageKit: uid 1000 is trying to obtain org.freedesktop.packagekit.system-sources-refresh auth (only_trusted:0)
+Jan 27 08:48:07 test-user-ubuntu PackageKit: uid 1000 obtained auth for org.freedesktop.packagekit.system-sources-refresh
+Jan 27 08:48:10 test-user-ubuntu PackageKit: uid 1000 is trying to obtain org.freedesktop.packagekit.system-sources-refresh auth (only_trusted:0)
+Jan 27 08:48:10 test-user-ubuntu PackageKit: uid 1000 obtained auth for org.freedesktop.packagekit.system-sources-refresh
+Jan 27 08:48:13 test-user-ubuntu PackageKit: uid 1000 is trying to obtain org.freedesktop.packagekit.system-sources-refresh auth (only_trusted:0)
+Jan 27 08:48:13 test-user-ubuntu PackageKit: uid 1000 obtained auth for org.freedesktop.packagekit.system-sources-refresh
+Jan 27 08:52:45 test-user-ubuntu su: (to nobody) root on none
+Jan 27 08:52:45 test-user-ubuntu su: pam_unix(su:session): session opened for user nobody by (uid=0)
+Jan 27 08:52:45 test-user-ubuntu systemd: pam_unix(systemd-user:session): session opened for user nobody by (uid=0)
+Jan 27 08:52:45 test-user-ubuntu su: pam_unix(su:session): session closed for user nobody
+Jan 27 08:52:45 test-user-ubuntu su: (to nobody) root on none
+Jan 27 08:52:45 test-user-ubuntu su: pam_unix(su:session): session opened for user nobody by (uid=0)
+Jan 27 08:52:45 test-user-ubuntu su: pam_unix(su:session): session closed for user nobody
+Jan 27 08:52:45 test-user-ubuntu su: (to nobody) root on none
+Jan 27 08:52:45 test-user-ubuntu su: pam_unix(su:session): session opened for user nobody by (uid=0)
+Jan 27 08:52:47 test-user-ubuntu su: pam_unix(su:session): session closed for user nobody
+Jan 27 08:54:17 test-user-ubuntu gdm-password]: gkr-pam: unlocked login keyring
+Jan 27 09:17:01 test-user-ubuntu CRON[40923]: pam_unix(cron:session): session opened for user root by (uid=0)
+Jan 27 09:17:01 test-user-ubuntu CRON[40923]: pam_unix(cron:session): session closed for user root
+Jan 27 09:30:01 test-user-ubuntu CRON[41018]: pam_unix(cron:session): session opened for user root by (uid=0)
+Jan 27 09:30:01 test-user-ubuntu CRON[41018]: pam_unix(cron:session): session closed for user root
+Jan 27 10:09:35 test-user-ubuntu sshd[28403]: pam_unix(sshd:session): session closed for user test-user
+Jan 27 10:09:35 test-user-ubuntu systemd-logind[1118]: Session 66 logged out. Waiting for processes to exit.
+Jan 27 10:09:35 test-user-ubuntu systemd-logind[1118]: Removed session 66.
+Jan 27 10:17:01 test-user-ubuntu CRON[41309]: pam_unix(cron:session): session opened for user root by (uid=0)
+Jan 27 10:17:02 test-user-ubuntu CRON[41309]: pam_unix(cron:session): session closed for user root
+Jan 27 10:30:01 test-user-ubuntu CRON[41390]: pam_unix(cron:session): session opened for user root by (uid=0)
+Jan 27 10:30:02 test-user-ubuntu CRON[41390]: pam_unix(cron:session): session closed for user root
+Jan 27 11:17:01 test-user-ubuntu CRON[41663]: pam_unix(cron:session): session opened for user root by (uid=0)
+Jan 27 11:17:01 test-user-ubuntu CRON[41663]: pam_unix(cron:session): session closed for user root
+Jan 27 11:30:01 test-user-ubuntu CRON[41739]: pam_unix(cron:session): session opened for user root by (uid=0)
+Jan 27 11:30:01 test-user-ubuntu CRON[41739]: pam_unix(cron:session): session closed for user root
+Jan 27 12:17:01 test-user-ubuntu CRON[42923]: pam_unix(cron:session): session opened for user root by (uid=0)
+Jan 27 12:17:01 test-user-ubuntu CRON[42923]: pam_unix(cron:session): session closed for user root
+Jan 27 12:30:01 test-user-ubuntu CRON[43132]: pam_unix(cron:session): session opened for user root by (uid=0)
+Jan 27 12:30:01 test-user-ubuntu CRON[43132]: pam_unix(cron:session): session closed for user root
+Jan 27 13:17:01 test-user-ubuntu CRON[44485]: pam_unix(cron:session): session opened for user root by (uid=0)
+Jan 27 13:17:01 test-user-ubuntu CRON[44485]: pam_unix(cron:session): session closed for user root
+Jan 27 13:30:01 test-user-ubuntu CRON[44813]: pam_unix(cron:session): session opened for user root by (uid=0)
+Jan 27 13:30:01 test-user-ubuntu CRON[44813]: pam_unix(cron:session): session closed for user root
+Jan 27 14:03:15 test-user-ubuntu sudo: test-user : TTY=pts/3 ; PWD=/work/git/Autosketch ; USER=root ; COMMAND=/usr/bin/ls
+Jan 27 14:03:15 test-user-ubuntu sudo: pam_unix(sudo:session): session opened for user root by (uid=0)
+Jan 27 14:03:15 test-user-ubuntu sudo: pam_unix(sudo:session): session closed for user root
