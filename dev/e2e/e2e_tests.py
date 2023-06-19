@@ -5,6 +5,8 @@ import time
 from timesketch_api_client.client import TimesketchApi
 from timesketch_api_client import search
 
+import sys
+
 AS_URL = "http://localhost:5001"
 
 # Get TS_URL from argument called --ts_url or use default value "http://localhost"
@@ -119,4 +121,4 @@ def test_upload_plaso(url):
 
 
 if __name__ == "__main__":
-    pytest.main([__file__])
+    sys.exit(pytest.main([__file__]))
