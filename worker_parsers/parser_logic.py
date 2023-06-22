@@ -385,7 +385,7 @@ def start_parser(parser_conf, task_uuid="0-0-0-0-0"):
         task_uuid (str): task uuid
 
     Returns:
-        bool: True if success, False if error
+        str: Upload task id if success, Empty if error
 
     '''
     log_file = UPLOAD_FOLDER + "/" + task_uuid + ".log"
@@ -479,7 +479,7 @@ def start_parser(parser_conf, task_uuid="0-0-0-0-0"):
         
         parser_conf["file_to_upload"] = run_zimmer_evtx_json(artifacts_path, task_directory, timeline_name)
         parser_conf["parser_uploading"] = "evtx_zimmer"
-        q.enqueue(start_uploader, parser_conf, task_uuid, job_timeout=36000)
+        task = q.enqueue(start_uploader, parser_conf, task_uuid, job_timeout=36000)
         
         # upload_file_to_timesketch(adjusted_jsonl_path, timeline_name,
         #                          sketch_id, user)
@@ -489,14 +489,15 @@ def start_parser(parser_conf, task_uuid="0-0-0-0-0"):
         run_tagging(task_directory, plaso_storage, parser_conf["tagging"])
         parser_conf["file_to_upload"] = task_directory + "/" + plaso_storage
         parser_conf["parser_uploading"] = "plaso"
-        q.enqueue(start_uploader, parser_conf, task_uuid, job_timeout=36000)
+        task = q.enqueue(start_uploader, parser_conf, task_uuid, job_timeout=36000)
 
 
         # upload_plaso_to_timesketch(user, task_directory + "/" + plaso_storage,
         #                            sketch_id, timeline_name)
 
-    logging.info("Finished")
-    return True
+    logging.info("Finished, created task id: " + str(task.id) )
+    #return task id
+    return task.id
 
 
 

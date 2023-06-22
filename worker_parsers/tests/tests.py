@@ -39,7 +39,8 @@ except FileNotFoundError as e:
         print(e)
 
 class TestWorker(unittest.TestCase):
-    queue = Queue(name="parsers", connection=redis.Redis(host=REDIS_IP,port=REDIS_PORT))
+    queue_parsers = Queue(name="parsers", connection=redis.Redis(host=REDIS_IP,port=REDIS_PORT))
+    queue_uploaders = Queue(name="uploaders", connection=redis.Redis(host=REDIS_IP,port=REDIS_PORT))
 
     def test_000_check_connection(self):
         #TODO
@@ -72,7 +73,7 @@ class TestWorker(unittest.TestCase):
 
         #add redis task to queue
         task_uuid = test_dir
-        task = self.queue.enqueue(start_parser, ts_flow_conf, task_uuid, job_timeout=36000)
+        task = self.queue_parsers.enqueue(start_parser, ts_flow_conf, task_uuid, job_timeout=36000)
 
         #wait for task to finish
         while task.result is None:
@@ -84,10 +85,13 @@ class TestWorker(unittest.TestCase):
         #get sketch id and sketch name by comparing with sketch name
         ts = config.get_client(config_path=TS_RC,config_section=username)
         sketches = ts.list_sketches()
-
-        sketches_filtered = filter(lambda sketch: sketch.name == sketch_name, sketches)  
+        for sketch in sketches:
+            if sketch.name == sketch_name:
+                sketch_id = sketch.id
+                break
+        #sketches_filtered = filter(lambda sketch: sketch.name == sketch_name, sketches)  
           
-        sketch_id = next(sketches_filtered).id
+        #sketch_id = next(sketches_filtered).id
 
         sketch = ts.get_sketch(sketch_id=sketch_id)
         
@@ -121,14 +125,31 @@ class TestWorker(unittest.TestCase):
 
         #add redis task to queue
         task_uuid = test_dir
-        task = self.queue.enqueue(start_parser, ts_flow_conf, task_uuid, job_timeout=36000)
+        task = self.queue_parsers.enqueue(start_parser, ts_flow_conf, task_uuid, job_timeout=36000)
 
         #wait for task to finish
         while task.result is None:
                 pass
         
-        #sleep for 20 seconds to ensure indexing is done
-        time.sleep(20)
+        #if result is empty string, then it failed
+        self.assertNotEqual(task.result, '', 'Task failed')
+        self.assertIsNotNone(task.result, 'Task failed')
+
+        upload_task_id = task.result
+        logging.info(f'Result: {upload_task_id}')
+        logging.info(f'Upload task id: {upload_task_id}')
+        #get task by id and wait for task to finish
+        time.sleep(1)
+
+        upload_task = self.queue_uploaders.fetch_job(upload_task_id)
+
+        self.assertIsNotNone(upload_task, 'Task failed')
+
+        while upload_task.result is None:
+                pass
+
+        #sleep for 5 seconds to ensure indexing is done
+        time.sleep(5)
         
 
         #get sketch id and sketch name by comparing with sketch name

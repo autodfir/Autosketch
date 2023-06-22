@@ -16,9 +16,25 @@ fi
 mkdir Autosketch
 mkdir Autosketch/etc
 
-#copy necessary files
-curl https://raw.githubusercontent.com/autodfir/Autosketch/main/etc/config.yaml > Autosketch/etc/config.yaml
-curl https://raw.githubusercontent.com/autodfir/Autosketch/main/docker-compose.yaml > Autosketch/docker-compose.yaml
+#copy necessary files with curl, dont display stderr
+config_url="https://raw.githubusercontent.com/autodfir/Autosketch/main/etc/example-config.yaml"
+config_path = "Autosketch/etc/config.yaml"
+if curl -s -o /dev/null -I -w "%{http_code}" $config_url; then
+    curl -s $config_url > $config_path
+else
+    echo "Error: Could not download config.yaml"
+    exit 1
+fi 
+
+docker_compose_url="https://raw.githubusercontent.com/autodfir/Autosketch/main/docker-compose.yaml"
+docker_compose_path = "Autosketch/docker-compose.yaml"
+
+if curl -s -o /dev/null -I -w "%{http_code}" $docker_compose_url; then
+    curl -s $docker_compose_url > $docker_compose_path
+else
+    echo "Error: Could not download docker-compose.yaml"
+    exit 1
+fi
 
 #read Timesketch IP address and port
 echo "Please enter the IP address of the Timesketch server"
