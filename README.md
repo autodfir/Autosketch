@@ -52,7 +52,7 @@ sudo ./deploy_as.sh
 ```
 
 ### Manual way
- - copy etc/config.yaml directory to /opt/autosketch/etc
+ - copy etc/example-config.yaml directory to /opt/autosketch/etc/config.yaml
  - copy docker-compose.yaml to /opt/autosketch
  - edit TS_IP and TS_PORT to IP and PORT of Timesketch
  - docker-compose up -d
