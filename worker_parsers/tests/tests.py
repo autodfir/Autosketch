@@ -95,8 +95,8 @@ class TestWorker(unittest.TestCase):
         while upload_task.result is None:
                 pass
 
-        #sleep for 5 seconds to ensure indexing is done
-        time.sleep(5)
+        #sleep for 10 seconds to ensure indexing is done
+        time.sleep(10)
 
         #get sketch id and sketch name by comparing with sketch name
         ts = config.get_client(config_path=TS_RC,config_section=username)
@@ -164,8 +164,8 @@ class TestWorker(unittest.TestCase):
         while upload_task.result is None:
                 pass
 
-        #sleep for 5 seconds to ensure indexing is done
-        time.sleep(5)
+        #sleep for 10 seconds to ensure indexing is done
+        time.sleep(10)
         
 
         #get sketch id and sketch name by comparing with sketch name
