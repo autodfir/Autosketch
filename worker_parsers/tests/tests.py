@@ -75,12 +75,28 @@ class TestWorker(unittest.TestCase):
         task_uuid = test_dir
         task = self.queue_parsers.enqueue(start_parser, ts_flow_conf, task_uuid, job_timeout=36000)
 
-        #wait for task to finish
         while task.result is None:
                 pass
+        
+        #if result is empty string, then it failed
+        self.assertNotEqual(task.result, '', 'Task failed')
+        self.assertIsNotNone(task.result, 'Task failed')
 
-        #sleep for 20 seconds to ensure indexing is done
-        time.sleep(20)
+        upload_task_id = task.result
+        #logging.info(f'Result: {upload_task_id}')
+        #logging.info(f'Upload task id: {upload_task_id}')
+        #get task by id and wait for task to finish
+        time.sleep(1)
+
+        upload_task = self.queue_uploaders.fetch_job(upload_task_id)
+
+        self.assertIsNotNone(upload_task, 'Task failed')
+
+        while upload_task.result is None:
+                pass
+
+        #sleep for 5 seconds to ensure indexing is done
+        time.sleep(5)
 
         #get sketch id and sketch name by comparing with sketch name
         ts = config.get_client(config_path=TS_RC,config_section=username)
@@ -136,8 +152,8 @@ class TestWorker(unittest.TestCase):
         self.assertIsNotNone(task.result, 'Task failed')
 
         upload_task_id = task.result
-        logging.info(f'Result: {upload_task_id}')
-        logging.info(f'Upload task id: {upload_task_id}')
+        #logging.info(f'Result: {upload_task_id}')
+        #logging.info(f'Upload task id: {upload_task_id}')
         #get task by id and wait for task to finish
         time.sleep(1)
 
