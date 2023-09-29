@@ -113,6 +113,7 @@ def adjust_EZ_EvtxEcmd_jsonl(jsonl_path):
             del obj["Payload"]
             obj["datetime"] = obj["TimeCreated"]
             del obj["TimeCreated"]
+            obj["timestamp_desc"] = "evtx_desc"
             f.write(json.dumps(obj)+"\n")
         
     logging.info("Finished - adjusting evtx jsonl to TS")
