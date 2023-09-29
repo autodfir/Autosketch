@@ -18,7 +18,7 @@ mkdir Autosketch/etc
 
 #copy necessary files with curl, dont display stderr
 config_url="https://raw.githubusercontent.com/autodfir/Autosketch/main/etc/example-config.yaml"
-config_path = "Autosketch/etc/config.yaml"
+config_path="Autosketch/etc/config.yaml"
 if curl -s -o /dev/null -I -w "%{http_code}" $config_url; then
     curl -s $config_url > $config_path
 else
@@ -27,7 +27,7 @@ else
 fi 
 
 docker_compose_url="https://raw.githubusercontent.com/autodfir/Autosketch/main/docker-compose.yaml"
-docker_compose_path = "Autosketch/docker-compose.yaml"
+docker_compose_path="Autosketch/docker-compose.yaml"
 
 if curl -s -o /dev/null -I -w "%{http_code}" $docker_compose_url; then
     curl -s $docker_compose_url > $docker_compose_path
